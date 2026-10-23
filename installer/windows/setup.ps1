@@ -4,6 +4,10 @@
 # user-writable folder such as the default %USERPROFILE%\.local\bin.
 param([Parameter(Mandatory)][string]$AppDir)
 $ErrorActionPreference = 'Stop'
+# Windows PowerShell 5.1 downloads 10-50x slower while drawing a progress bar,
+# even in a hidden window. install.ps1 inherits this setting.
+$ProgressPreference = 'SilentlyContinue'
+Start-Transcript -Path (Join-Path $AppDir 'setup.log') -Force | Out-Null
 $Bin = Join-Path $AppDir 'bin'
 $Svc = 'OcteliumDaemon'
 
@@ -18,3 +22,4 @@ if (-not (Get-Service $Svc -ErrorAction SilentlyContinue)) {
         -BinaryPathName "`"$Bin\octelium.exe`" daemon" | Out-Null
 }
 Start-Service $Svc
+Stop-Transcript | Out-Null

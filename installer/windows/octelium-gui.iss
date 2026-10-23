@@ -33,8 +33,7 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
     ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}\bin"; Check: NeedsAddPath(ExpandConstant('{app}\bin'))
 
 [Run]
-Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\setup.ps1"" -AppDir ""{app}"""; \
-    StatusMsg: "Installing the Octelium CLI and service..."; Flags: runhidden waituntilterminated
+; setup.ps1 (CLI + service) runs from CurStepChanged below so a failure is reported.
 ; Launched as the installing user: the daemon binds to the first user that calls it.
 Filename: "{app}\octelium-gui.exe"; Description: "Launch Octelium GUI"; Flags: postinstall nowait runasoriginaluser
 
@@ -54,4 +53,17 @@ begin
     Result := True
   else
     Result := Pos(';' + Uppercase(Dir) + ';', ';' + Uppercase(Path) + ';') = 0;
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  Code: Integer;
+begin
+  if CurStep <> ssPostInstall then Exit;
+  WizardForm.StatusLabel.Caption := 'Installing the Octelium CLI and service...';
+  if not Exec('powershell.exe',
+      '-NoProfile -ExecutionPolicy Bypass -File "' + ExpandConstant('{app}\setup.ps1') + '" -AppDir "' + ExpandConstant('{app}') + '"',
+      '', SW_HIDE, ewWaitUntilTerminated, Code) or (Code <> 0) then
+    MsgBox('Installing the Octelium CLI or the OcteliumDaemon service failed (exit code ' + IntToStr(Code) + ').' + #13#10 +
+      'See ' + ExpandConstant('{app}\setup.log') + ' for details.', mbError, MB_OK);
 end;

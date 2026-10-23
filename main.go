@@ -15,6 +15,7 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/octelium/octelium/apis/client/daemonv1"
+	"google.golang.org/grpc/status"
 )
 
 type gui struct {
@@ -219,7 +220,9 @@ func (g *gui) toggleConnection() {
 			if disconnect {
 				return g.d.Disconnect(ctx, &daemonv1.DisconnectRequest{Domain: domain})
 			}
-			return g.d.Connect(ctx, &daemonv1.ConnectRequest{Domain: domain})
+			// Same as `octelium connect --ip-mode both`.
+			return g.d.Connect(ctx, &daemonv1.ConnectRequest{Domain: domain,
+				Options: &daemonv1.ConnectionOptions{L3Mode: daemonv1.ConnectionOptions_BOTH}})
 		}, g.openURL)
 		fyne.Do(func() {
 			g.toggle.Enable()
@@ -253,12 +256,13 @@ const unreachable = "Can't reach the Octelium service. Make sure it's installed 
 func (g *gui) update(ds *daemonv1.DomainState, err error) {
 	g.state = ds
 	if err != nil {
-		g.domainErr.SetText(unreachable)
-		g.connErr.SetText(unreachable)
+		msg := unreachable + "\n\n" + status.Convert(err).Message()
+		g.domainErr.SetText(msg)
+		g.connErr.SetText(msg)
 		g.render()
 		return
 	}
-	if g.domainErr.Text == unreachable {
+	if strings.HasPrefix(g.domainErr.Text, unreachable) {
 		g.domainErr.SetText("")
 		g.connErr.SetText("")
 	}
