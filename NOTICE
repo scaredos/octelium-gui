@@ -1,0 +1,7 @@
+octelium-gui
+Copyright 2026 octelium-gui contributors
+
+This product talks to, and its installers download, the Octelium client
+(https://github.com/octelium/octelium), Copyright Octelium Labs, LLC,
+licensed under the Apache License, Version 2.0. It uses the Apache-2.0
+generated API package github.com/octelium/octelium/apis/client/daemonv1.

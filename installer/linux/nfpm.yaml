@@ -1,0 +1,21 @@
+# Build: go build -o octelium-gui .  then  nfpm pkg -f installer/linux/nfpm.yaml -p deb   (or -p rpm)
+name: octelium-gui
+arch: amd64
+version: ${VERSION}
+license: Apache-2.0
+description: Desktop GUI for Octelium. Installs the Octelium CLI and runs its daemon as a service.
+depends:
+  - curl
+  - bash
+  - libgl1
+  - libxkbcommon0
+contents:
+  - src: octelium-gui
+    dst: /usr/bin/octelium-gui
+  - src: installer/linux/octelium-daemon.service
+    dst: /usr/lib/systemd/system/octelium-daemon.service
+  - src: installer/linux/octelium-gui.desktop
+    dst: /usr/share/applications/octelium-gui.desktop
+scripts:
+  postinstall: installer/linux/postinst.sh
+  preremove: installer/linux/preremove.sh

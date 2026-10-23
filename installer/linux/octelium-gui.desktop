@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Octelium
+Comment=Connect to your Octelium cluster
+Exec=octelium-gui
+Icon=network-vpn
+Categories=Network;

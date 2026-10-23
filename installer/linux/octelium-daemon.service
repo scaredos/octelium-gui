@@ -1,0 +1,11 @@
+[Unit]
+Description=Octelium client daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/octelium daemon
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,5 @@
+octelium-gui
+octelium-gui.exe
+dist/
+*.deb
+*.rpm
